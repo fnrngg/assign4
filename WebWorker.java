@@ -5,8 +5,22 @@ import java.util.Date;
 import javax.swing.*;
 
 public class WebWorker extends Thread {
-/*
-  This is the core web/download i/o code...
+	private String urlString;
+	private int row;
+	private WebFrame frame;
+	private long start;
+	private long end;
+	private String status = "";
+	
+	public WebWorker(String url, int row, WebFrame frame) {
+		urlString = url;
+		this.row = row;
+		this.frame = frame;
+	}
+
+	// downloads url content and adds status for each url
+	public void download() {
+		start = System.currentTimeMillis();
  		InputStream input = null;
 		StringBuilder contents = null;
 		try {
@@ -26,20 +40,27 @@ public class WebWorker extends Thread {
 			int len;
 			contents = new StringBuilder(1000);
 			while ((len = reader.read(array, 0, array.length)) > 0) {
+				if(isInterrupted()) {
+					throw new InterruptedException();
+				}
 				contents.append(array, 0, len);
 				Thread.sleep(100);
 			}
-			
-			// Successful download if we get here
+			end = System.currentTimeMillis();
+			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+			status = "" + sdf.format(new Date(start)) + " " + (end - start) + "ms " + contents.length() + "bytes";
 			
 		}
 		// Otherwise control jumps to a catch...
-		catch(MalformedURLException ignored) {}
-		catch(InterruptedException exception) {
-			// YOUR CODE HERE
-			// deal with interruption
+		catch(MalformedURLException ignored) {
+			status = "err";
 		}
-		catch(IOException ignored) {}
+		catch(InterruptedException exception) {
+			status = "interrupted";
+		}
+		catch(IOException ignored) {
+			status = "err";
+		}
 		// "finally" clause, to close the input stream
 		// in any case
 		finally {
@@ -48,7 +69,12 @@ public class WebWorker extends Thread {
 			}
 			catch(IOException ignored) {}
 		}
+	}
 
-*/
+	@Override
+	public void run() {
+		download();
+		frame.addStatus(row, status);
+	}
 	
 }

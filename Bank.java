@@ -43,6 +43,9 @@ public class Bank {
 	
 	/*
 	 * Reads and puts transactions from file to blockingQueue
+	 * size of blockingQueue is equal to number of workers so 
+	 * when printAccValues is called all transactions are already made and it 
+	 * doesn't need to use countDownLacht
 	 */
 	private void readAndAdd(String fileName) {
 		try {
@@ -61,7 +64,7 @@ public class Bank {
 			for(int i = 0; i < numOfWorkers; i++) {
 				trans.put(nullTrans);
 			}
-			
+			read.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
